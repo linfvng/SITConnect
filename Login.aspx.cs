@@ -32,11 +32,14 @@ namespace SITConnect_201128S
             string dbSalt = getDBSalt(emailid);
             try
             {
-                if (dbSalt != null && dbSalt.Length > 0 && dbHash != null && dbHash.Length > 0)
+                string currentAttempt = Int32.Parse(counter(emailid)).ToString();
+                if (Int32.Parse(currentAttempt) > 0)
                 {
-                    string pwdWithSalt = pwd + dbSalt;
-                    byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
-                    string userHash = Convert.ToBase64String(hashWithSalt);
+                    if (dbSalt != null && dbSalt.Length > 0 && dbHash != null && dbHash.Length > 0)
+                    {
+                        string pwdWithSalt = pwd + dbSalt;
+                        byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
+                        string userHash = Convert.ToBase64String(hashWithSalt);
 
                         if (userHash.Equals(dbHash))
                         {
@@ -49,38 +52,28 @@ namespace SITConnect_201128S
                             //now create a new cookie with this guid value
                             Response.Cookies.Add(new HttpCookie("AuthToken", guid));
 
-                            string c = counter(emailid).ToString();
-                            if (Int32.Parse(c) > 0)
-                            {
-                                updateattempt(emailid, "3");
-                                Response.Redirect("Homepage.aspx", false);
-                            }
-                            else
-                            {
-                                attempt.Text = "Your account have been locked. Please contact the administrator.";
-                            }
+                            //Reset the account attempt
+                            updateattempt(emailid, "3");
+
+                            Response.Redirect("Homepage.aspx", false);
                         }
 
 
                         else
                         {
                             error.Text = "Email or Password is not valid. Please try again.";
-                            string c = (Int32.Parse(counter(emailid)) - 1).ToString();
-                            if (Int32.Parse(c) > 0)
-                            {
-                                attempt.Text = "You have " + c + " attempt left.";
-                                updateattempt(emailid, c);
-                            }
-                            else
-                            {
-                                attempt.Text = "Your account have been locked. Please contact the administrator.";
-                            }
+                            string subtractAttempt = (Int32.Parse(counter(emailid)) - 1).ToString();
+                            updateattempt(emailid, subtractAttempt);
                         }
-
+                    }
+                    else
+                    {
+                        error.Text = "Email or Password is not valid. Please try again.";
+                    }
                 }
                 else
                 {
-                    error.Text = "Email or Password is not valid. Please try again.";
+                    error.Text = "Your account have been locked. Please contact the administrator.";
                 }
             }
             catch (Exception ex)
@@ -95,7 +88,7 @@ namespace SITConnect_201128S
         {
             string h = null;
             SqlConnection connection = new SqlConnection(MYDBConnectionString);
-            string sql = "select PasswordHash FROM Registration WHERE Email=@EMAILID";
+            string sql = "select PasswordHash FROM Account WHERE Email=@EMAILID";
             SqlCommand command = new SqlCommand(sql, connection);
             command.Parameters.AddWithValue("@EMAILID", emailid);
             try
@@ -129,7 +122,7 @@ namespace SITConnect_201128S
         {
             string s = null;
             SqlConnection connection = new SqlConnection(MYDBConnectionString);
-            string sql = "select PASSWORDSALT FROM Registration WHERE Email=@EMAILID";
+            string sql = "select PASSWORDSALT FROM Account WHERE Email=@EMAILID";
             SqlCommand command = new SqlCommand(sql, connection);
             command.Parameters.AddWithValue("@EMAILID", emailid);
             try
@@ -179,9 +172,9 @@ namespace SITConnect_201128S
 
         protected string counter(string emailid)
         {
-            string c = null;
+            string c = "1";
             SqlConnection connection = new SqlConnection(MYDBConnectionString);
-            string sql = "select Count FROM Registration WHERE Email=@EMAILID";
+            string sql = "select Attempt FROM Account WHERE Email=@EMAILID";
             SqlCommand command = new SqlCommand(sql, connection);
             command.Parameters.AddWithValue("@EMAILID", emailid);
             try
@@ -191,9 +184,9 @@ namespace SITConnect_201128S
                 {
                     while (reader.Read())
                     {
-                        if (reader["Count"] != null)
+                        if (reader["Attempt"] != null)
                         {
-                            c = reader["Count"].ToString();
+                            c = reader["Attempt"].ToString();
                         }
                     }
                 }
@@ -206,13 +199,13 @@ namespace SITConnect_201128S
             return c;
         }
 
-        protected string updateattempt(string emailid, string counter)
+        protected string updateattempt(string emailid, string count)
         {
             string a = null;
             SqlConnection connection = new SqlConnection(MYDBConnectionString);
-            string sql = "UPDATE Registration SET Count=@count WHERE Email=@EMAILID";
+            string sql = "UPDATE Account SET Attempt=@counter WHERE Email=@EMAILID";
             SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@count", counter);
+            command.Parameters.AddWithValue("@counter", count);
             command.Parameters.AddWithValue("@EMAILID", emailid);
             try
             {
@@ -221,11 +214,11 @@ namespace SITConnect_201128S
                 {
                     while (reader.Read())
                     {
-                        if (reader["Count"] != null)
+                        if (reader["Attempt"] != null)
                         {
-                            if (reader["Count"] != DBNull.Value)
+                            if (reader["Attempt"] != DBNull.Value)
                             {
-                                a = reader["Count"].ToString();
+                                a = reader["Attempt"].ToString();
                             }
                         }
                     }

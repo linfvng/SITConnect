@@ -36,11 +36,9 @@
                         <asp:TextBox ID="passwordTB" runat="server" TextMode="Password" Width="250px"></asp:TextBox>
                     </div>
                 </div>
-                <asp:Label ID="attempt" runat="server" ForeColor="Red"></asp:Label>
+                <asp:Label ID="error" runat="server" ForeColor="Red"></asp:Label>
                 <br />
-                <div id="row">
-                    <asp:Label ID="error" runat="server" ForeColor="Red"></asp:Label>
-                </div>
+ 
                 <div id="login">
                     <asp:Button ID="loginBtn" runat="server" Text="Login" OnClick="loginBtn_Click"/>
                 </div>
