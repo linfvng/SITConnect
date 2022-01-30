@@ -111,9 +111,9 @@ namespace SITConnect_201128S
             HttpPostedFile postedFile = photoTB.PostedFile;
             string fileName = Path.GetFileName(postedFile.FileName);
             string fileExtension = Path.GetExtension(fileName);
-            int fileSize = postedFile.ContentLength;
 
-            bool valid = false;
+            bool validFile = false;
+            bool validPwd = false;
 
             if(fileExtension.ToLower() == ".jpg" || fileExtension.ToLower() == ".bmp" || fileExtension.ToLower() == ".gif" || fileExtension.ToLower() == ".png")
             {
@@ -121,14 +121,14 @@ namespace SITConnect_201128S
                 BinaryReader binaryReader = new BinaryReader(stream);
                 Photo = binaryReader.ReadBytes((int)stream.Length);
 
-                valid = true;
+                validFile = true;
             }
             else
             {
                 photoError.Text = "Only images (.jpg, .png, .gif, .bmp) can be upload";
                 photoError.ForeColor = System.Drawing.Color.Red;
 
-                valid = false;
+                validFile = false;
             }
 
 
@@ -153,13 +153,13 @@ namespace SITConnect_201128S
                 Key = cipher.Key;
                 IV = cipher.IV;
 
-                valid = true;
+                validPwd = true;
             }
             else
             {
-                valid = false;
+                validPwd = false;
             }
-            if (valid)
+            if (validPwd && validFile)
             {
                 createAccount();
 
