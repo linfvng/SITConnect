@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 
 namespace SITConnect_201128S
 {
@@ -18,6 +19,7 @@ namespace SITConnect_201128S
         string MYDBConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["SITConnect"].ConnectionString;
         static string finalHash;
         static string salt;
+        byte[] Photo;
         byte[] Key;
         byte[] IV;
         protected void Page_Load(object sender, EventArgs e)
@@ -106,26 +108,63 @@ namespace SITConnect_201128S
 
         protected void SubmitBtn_Click(object sender, EventArgs e)
         {
-            //string pwd = get value from your Textbox
-            string pwd = passwordTB.Text.ToString().Trim(); ;
-            //Generate random "salt"
-            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-            byte[] saltByte = new byte[8];
-            //Fills array of bytes with a cryptographically strong sequence of random values.
-            rng.GetBytes(saltByte);
-            salt = Convert.ToBase64String(saltByte);
-            SHA512Managed hashing = new SHA512Managed();
-            string pwdWithSalt = pwd + salt;
-            byte[] plainHash = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwd));
-            byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
-            finalHash = Convert.ToBase64String(hashWithSalt);
-            RijndaelManaged cipher = new RijndaelManaged();
-            cipher.GenerateKey();
-            Key = cipher.Key;
-            IV = cipher.IV;
-            createAccount();
+            HttpPostedFile postedFile = photoTB.PostedFile;
+            string fileName = Path.GetFileName(postedFile.FileName);
+            string fileExtension = Path.GetExtension(fileName);
+            int fileSize = postedFile.ContentLength;
 
-            Response.Redirect("Login.aspx", false);
+            bool valid = false;
+
+            if(fileExtension.ToLower() == ".jpg" || fileExtension.ToLower() == ".bmp" || fileExtension.ToLower() == ".gif" || fileExtension.ToLower() == ".png")
+            {
+                Stream stream = postedFile.InputStream;
+                BinaryReader binaryReader = new BinaryReader(stream);
+                Photo = binaryReader.ReadBytes((int)stream.Length);
+
+                valid = true;
+            }
+            else
+            {
+                photoError.Text = "Only images (.jpg, .png, .gif, .bmp) can be upload";
+                photoError.ForeColor = System.Drawing.Color.Red;
+
+                valid = false;
+            }
+
+
+            int scores = checkPassword(passwordTB.Text);
+            if (scores == 5)
+            {
+                //string pwd = get value from your Textbox
+                string pwd = passwordTB.Text.ToString().Trim(); ;
+                //Generate random "salt"
+                RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+                byte[] saltByte = new byte[8];
+                //Fills array of bytes with a cryptographically strong sequence of random values.
+                rng.GetBytes(saltByte);
+                salt = Convert.ToBase64String(saltByte);
+                SHA512Managed hashing = new SHA512Managed();
+                string pwdWithSalt = pwd + salt;
+                byte[] plainHash = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwd));
+                byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
+                finalHash = Convert.ToBase64String(hashWithSalt);
+                RijndaelManaged cipher = new RijndaelManaged();
+                cipher.GenerateKey();
+                Key = cipher.Key;
+                IV = cipher.IV;
+
+                valid = true;
+            }
+            else
+            {
+                valid = false;
+            }
+            if (valid)
+            {
+                createAccount();
+
+                Response.Redirect("Login.aspx", false);
+            }
         }
 
         protected void createAccount()
@@ -134,7 +173,7 @@ namespace SITConnect_201128S
             {
                 using (SqlConnection con = new SqlConnection(MYDBConnectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Registration VALUES(@Fname, @Lname, @CreditCard, @Email, @PasswordHash, @PasswordSalt, @IV, @Key, @Count, @Lockdatetime)"))
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@Fname, @Lname, @CreditCard, @Email, @PasswordHash, @PasswordSalt, @DoB, @Photo, @IV, @Key, @Count, @Lockdatetime)"))
                     {
                         using (SqlDataAdapter sda = new SqlDataAdapter())
                         {
@@ -145,6 +184,8 @@ namespace SITConnect_201128S
                             cmd.Parameters.AddWithValue("@Email", emailTB.Text.Trim());
                             cmd.Parameters.AddWithValue("@PasswordHash", finalHash);
                             cmd.Parameters.AddWithValue("@PasswordSalt", salt);
+                            cmd.Parameters.AddWithValue("@DoB", dobTB.Text.Trim());
+                            cmd.Parameters.AddWithValue("@Photo", Photo);
                             cmd.Parameters.AddWithValue("@IV", Convert.ToBase64String(IV));
                             cmd.Parameters.AddWithValue("@Key", Convert.ToBase64String(Key));
                             cmd.Parameters.AddWithValue("@Count", 3);

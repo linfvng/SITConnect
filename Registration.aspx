@@ -66,28 +66,34 @@
         <div id="container">
             <div id="inner-container">
                 <h2 id="title">Registration</h2>
-                <div id="row">
+                <div id="row" class="form-group">
                     <asp:Label ID="fname" runat="server" Text="First Name"></asp:Label>
                     <br />
-                    <asp:TextBox ID="fnameTB" runat="server"></asp:TextBox>
+                    <asp:TextBox ID="fnameTB" class="form-control" runat="server"></asp:TextBox>
+                    <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ControlToValidate="fnameTB" ErrorMessage="*First Name is empty" ForeColor="Red"></asp:RequiredFieldValidator>
                 </div>
 
                 <div id="row">
                     <asp:Label ID="lname" runat="server" Text="Last Name"></asp:Label>
                     <br />
                     <asp:TextBox ID="lnameTB" runat="server"></asp:TextBox>
+                    <asp:RequiredFieldValidator ID="RequiredFieldValidator2" runat="server" ControlToValidate="lnameTB" ErrorMessage="*Last Name is empty" ForeColor="Red"></asp:RequiredFieldValidator>
                 </div>
 
                 <div id="row">
                     <asp:Label ID="ccard" runat="server" Text="Credit Card"></asp:Label>
                     <br />
                     <asp:TextBox ID="ccardTB" runat="server"></asp:TextBox>
+                    <asp:RequiredFieldValidator ID="RequiredFieldValidator3" runat="server" ControlToValidate="ccardTB" ErrorMessage="*Credit Card is empty" ForeColor="Red"></asp:RequiredFieldValidator>
                 </div>
 
                 <div id="row">
                     <asp:Label ID="email" runat="server" Text="Email"></asp:Label>
                     <br />
                     <asp:TextBox ID="emailTB" runat="server"></asp:TextBox>
+                    <asp:RequiredFieldValidator ID="RequiredFieldValidator4" runat="server" ControlToValidate="emailTB" ErrorMessage="*Email is empty" ForeColor="Red"></asp:RequiredFieldValidator>
+                    <br />
+                    <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" ErrorMessage="*Invalid Email" ControlToValidate="emailTB" ForeColor="Red" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
                 </div>
 
                 <div id="row">
@@ -95,6 +101,8 @@
                     <br />
                     <asp:TextBox ID="passwordTB" runat="server" onkeyup="javascript:validate()" TextMode="Password"></asp:TextBox>
                     <asp:Label ID="pwdchecker" runat="server" Text="vaildate"></asp:Label>
+                    <br />
+                    <asp:RequiredFieldValidator ID="RequiredFieldValidator5" runat="server" ControlToValidate="passwordTB" ErrorMessage="*Password is empty" ForeColor="Red"></asp:RequiredFieldValidator>
                     <br />
                     <asp:Button ID="chkpwd" runat="server" Text="Check Password" OnClick="Chkpwd"/>
                     <br />
@@ -104,13 +112,20 @@
                 <div id="row">
                     <asp:Label ID="dob" runat="server" Text="Date of Birth"></asp:Label>
                     <br />
-                    <input id="dobTB"  type="date" />
+
+                    <asp:TextBox ID="dobTB" type="date" runat="server"></asp:TextBox>
+
+                    <asp:RequiredFieldValidator ID="RequiredFieldValidator7" runat="server" ControlToValidate="dobTB" ErrorMessage="*Date of Birth is empty" ForeColor="Red"></asp:RequiredFieldValidator>
+
                 </div>
 
                 <div id="row">
-                    <asp:Label ID="photo" runat="server" Text="Photo"></asp:Label>
+                    <asp:Label ID="photoLabel" runat="server" Text="Photo"></asp:Label>
                     <br />
                     <asp:FileUpload ID="photoTB" runat="server" />
+                    <asp:RequiredFieldValidator ID="RequiredFieldValidator8" runat="server" ControlToValidate="photoTB" ErrorMessage="*Photo is empty" ForeColor="Red"></asp:RequiredFieldValidator>
+                    <br />
+                    <asp:Label ID="photoError" runat="server" Text=""></asp:Label>
                 </div>
 
                 <div id="submit">
