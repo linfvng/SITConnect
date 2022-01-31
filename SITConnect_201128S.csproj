@@ -75,7 +75,6 @@
     <Content Include="css\register.css" />
     <Content Include="css\homepage.css" />
     <Content Include="Homepage.aspx" />
-    <Content Include="img\calendarImg.png" />
     <Content Include="Login.aspx" />
     <Content Include="Registration.aspx" />
     <Content Include="Web.config" />

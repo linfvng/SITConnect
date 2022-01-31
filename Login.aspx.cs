@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Security.Cryptography;
@@ -15,6 +16,7 @@ namespace SITConnect_201128S
         string MYDBConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["SITConnect"].ConnectionString;
         static string finalHash;
         static string salt;
+        static string logInfo;
         byte[] Key;
         byte[] IV;
 
@@ -55,6 +57,9 @@ namespace SITConnect_201128S
                             //Reset the account attempt
                             updateattempt(emailid, "3");
 
+                            //Log successful login
+                            logged(emailid, "success");
+
                             Response.Redirect("Homepage.aspx", false);
                         }
 
@@ -64,16 +69,43 @@ namespace SITConnect_201128S
                             error.Text = "Email or Password is not valid. Please try again.";
                             string subtractAttempt = (Int32.Parse(counter(emailid)) - 1).ToString();
                             updateattempt(emailid, subtractAttempt);
+
+                            //Log fail login
+                            logged(emailid, "fail");
                         }
                     }
                     else
                     {
                         error.Text = "Email or Password is not valid. Please try again.";
+
+                        //Log fail login
+                        logged(emailid, "fail");
                     }
                 }
                 else
                 {
-                    error.Text = "Your account have been locked. Please contact the administrator.";
+                    error.Text = "Your account has been locked for 15 minutes for 3 invalid attempts.";
+                    string locktimedate = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+                    if (lockStatus(emailid) == null)
+                    {
+                        locked(emailid, locktimedate);
+
+                        //Log lockout account
+                        logged(emailid, "locked");
+                    }
+                    else
+                    {
+                        DateTime cTimedate = Convert.ToDateTime(locktimedate);
+                        DateTime lTimedate = Convert.ToDateTime(locktime(emailid));
+                        TimeSpan ts = cTimedate.Subtract(lTimedate);
+                        Int32 minLocked = Convert.ToInt32(ts.TotalMinutes);
+                        Int32 pendingMin = 15 - minLocked;
+                        if (pendingMin <= 0)
+                        {
+                            updateattempt(emailid, "3");
+                            updatelock(emailid);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -216,10 +248,7 @@ namespace SITConnect_201128S
                     {
                         if (reader["Attempt"] != null)
                         {
-                            if (reader["Attempt"] != DBNull.Value)
-                            {
-                                a = reader["Attempt"].ToString();
-                            }
+                            a = reader["Attempt"].ToString();
                         }
                     }
                 }
@@ -231,5 +260,166 @@ namespace SITConnect_201128S
             finally { connection.Close(); }
             return a;
         }
+
+        protected string lockStatus(string emailid)
+        {
+            string ls = null;
+            SqlConnection connection = new SqlConnection(MYDBConnectionString);
+            string sql = "select Lockdatetime FROM Account WHERE Email=@EMAILID";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@EMAILID", emailid);
+            try
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["Lockdatetime"] != null)
+                        {
+                            if (reader["Lockdatetime"] != DBNull.Value)
+                            {
+                                ls = reader["Lockdatetime"].ToString();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { connection.Close(); }
+            return ls;
+        }
+
+        protected string locked(string emailid, string locktiming)
+        {
+            string a = null;
+            SqlConnection connection = new SqlConnection(MYDBConnectionString);
+            string sql = "UPDATE Account SET Lockdatetime=@locktimedate WHERE Email=@EMAILID";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@locktimedate", locktiming);
+            command.Parameters.AddWithValue("@EMAILID", emailid);
+            try
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["Lockdatetime"] != null)
+                        {
+                            a = reader["Lockdatetime"].ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { connection.Close(); }
+            return a;
+        }
+
+        protected string locktime(string emailid)
+        {
+            string lt = null;
+            SqlConnection connection = new SqlConnection(MYDBConnectionString);
+            string sql = "select Lockdatetime FROM Account WHERE Email=@EMAILID";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@EMAILID", emailid);
+            try
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["Lockdatetime"] != null)
+                        {
+                            lt = reader["Lockdatetime"].ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { connection.Close(); }
+            return lt;
+        }
+
+        protected string updatelock(string emailid)
+        {
+            string a = null;
+            SqlConnection connection = new SqlConnection(MYDBConnectionString);
+            string sql = "UPDATE Account SET Lockdatetime=@datetime WHERE Email=@EMAILID";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@datetime", DBNull.Value);
+            command.Parameters.AddWithValue("@EMAILID", emailid);
+            try
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["Lockdatetime"] != null)
+                        {
+                            a = reader["Lockdatetime"].ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { connection.Close(); }
+            return a;
+        }
+
+        protected void logged(string emailid, string status)
+        {
+            if (status == "success")
+            {
+                logInfo = emailid + " has successfully login.";
+            }
+            else if (status == "locked")
+            {
+                logInfo = emailid + " has been locked.";
+            }
+            else
+            {
+                logInfo = emailid + " has login failed.";
+            }
+            try
+            {
+                using (SqlConnection con = new SqlConnection(MYDBConnectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Logs VALUES(@Log)"))
+                    {
+                        using (SqlDataAdapter sda = new SqlDataAdapter())
+                        {
+                            cmd.CommandType = CommandType.Text;
+                            cmd.Parameters.AddWithValue("@Log", logInfo);
+                            cmd.Connection = con;
+                            con.Open();
+                            cmd.ExecuteNonQuery();
+                            con.Close();
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
+
     }
 }
