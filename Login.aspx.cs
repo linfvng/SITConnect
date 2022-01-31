@@ -3,17 +3,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Net;
-using System.IO;
-using System.Web.Script.Serialization;
-using System.Web.Services;
-
 
 namespace SITConnect_201128S
 {
@@ -49,38 +43,35 @@ namespace SITConnect_201128S
                         byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
                         string userHash = Convert.ToBase64String(hashWithSalt);
 
-                        if (ValidateCaptcha())
+                        if (userHash.Equals(dbHash))
                         {
-                            if (userHash.Equals(dbHash))
-                            {
-                                Session["LoggedIn"] = emailTB.Text.Trim();
+                            Session["LoggedIn"] = emailTB.Text.Trim();
 
-                                // creates  a new GUID and save into the session
-                                string guid = Guid.NewGuid().ToString();
-                                Session["AuthToken"] = guid;
+                            // creates  a new GUID and save into the session
+                            string guid = Guid.NewGuid().ToString();
+                            Session["AuthToken"] = guid;
 
-                                //now create a new cookie with this guid value
-                                Response.Cookies.Add(new HttpCookie("AuthToken", guid));
+                            //now create a new cookie with this guid value
+                            Response.Cookies.Add(new HttpCookie("AuthToken", guid));
 
-                                //Reset the account attempt
-                                updateattempt(emailid, "3");
+                            //Reset the account attempt
+                            updateattempt(emailid, "3");
 
-                                //Log successful login
-                                logged(emailid, "success");
+                            //Log successful login
+                            logged(emailid, "success");
 
-                                Response.Redirect("Homepage.aspx", false);
-                            }
+                            Response.Redirect("Homepage.aspx", false);
+                        }
 
 
-                            else
-                            {
-                                error.Text = "Email or Password is not valid. Please try again.";
-                                string subtractAttempt = (Int32.Parse(counter(emailid)) - 1).ToString();
-                                updateattempt(emailid, subtractAttempt);
+                        else
+                        {
+                            error.Text = "Email or Password is not valid. Please try again.";
+                            string subtractAttempt = (Int32.Parse(counter(emailid)) - 1).ToString();
+                            updateattempt(emailid, subtractAttempt);
 
-                                //Log fail login
-                                logged(emailid, "fail");
-                            }
+                            //Log fail login
+                            logged(emailid, "fail");
                         }
                     }
                     else
@@ -194,6 +185,26 @@ namespace SITConnect_201128S
             }
             finally { connection.Close(); }
             return s;
+        }
+
+        protected byte[] encryptData(string data)
+        {
+            byte[] cipherText = null;
+            try
+            {
+                RijndaelManaged cipher = new RijndaelManaged();
+                cipher.IV = IV;
+                cipher.Key = Key;
+                ICryptoTransform encryptTransform = cipher.CreateEncryptor();
+                byte[] plainText = Encoding.UTF8.GetBytes(data);
+                cipherText = encryptTransform.TransformFinalBlock(plainText, 0, plainText.Length);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { }
+            return cipherText;
         }
 
         protected string counter(string emailid)
@@ -417,50 +428,6 @@ namespace SITConnect_201128S
             catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
-            }
-        }
-
-        public class MyObject
-        {
-            public string success { get; set; }
-        }
-
-        public bool ValidateCaptcha()
-        {
-            bool result = true;
-
-            // When user submits the recaptcha form, the user gets a response POST parameter
-            // CaptchaRespponse consist of the user click pattern. Behaviour analytics!
-            string captchaResponse = Request.Form["g-recaptcha-response"];
-
-            //To send a GET request to Google along with the response and Secret Key.
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://www.google.com/recaptcha/api/siteverify?secret=6Lf1rEoeAAAAAEH9p8kqaEYyTxqoRFYyU6nXGCqo &response=" + captchaResponse);
-
-            try
-            {
-                //Codes to recieve the Response in JSON format from Google Server
-                using (WebResponse wResponse = req.GetResponse())
-                {
-                    using (StreamReader readStream = new StreamReader(wResponse.GetResponseStream()))
-                    {
-                        // The response in JSON format
-                        string jsonResponse = readStream.ReadToEnd();
-
-                        JavaScriptSerializer js = new JavaScriptSerializer();
-
-                        // Create jsonObject to handle the response e.g. success or error
-                        // Deserialize
-                        MyObject jsonObject = js.Deserialize<MyObject>(jsonResponse);
-
-                        result = Convert.ToBoolean(jsonObject.success);
-                    }
-                }
-
-                return result;
-            }
-            catch (WebException ex)
-            {
-                throw ex;
             }
         }
 
