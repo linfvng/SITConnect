@@ -6,6 +6,8 @@
 <head runat="server">
     <title>Login Page</title>
     <link rel="stylesheet" href="~/css/login.css" />
+
+    <script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
 <body>
     <ul>
@@ -36,6 +38,7 @@
                         <asp:TextBox ID="passwordTB" runat="server" TextMode="Password" Width="250px"></asp:TextBox>
                     </div>
                 </div>
+                <div class="g-recaptcha" data-sitekey="6Lf1rEoeAAAAAAuTVJUdFm_tchrRwRhaK71drzna"></div>
                 <asp:Label ID="error" runat="server" ForeColor="Red"></asp:Label>
                 <br />
  
