@@ -104,6 +104,11 @@ namespace SITConnect_201128S
                         {
                             updateattempt(emailid, "3");
                             updatelock(emailid);
+
+                            error.Text = "Your account has been recovered. Please relogin.";
+
+                            //Log account recovered
+                            logged(emailid, "unlock");
                         }
                     }
                 }
@@ -390,7 +395,11 @@ namespace SITConnect_201128S
             }
             else if (status == "locked")
             {
-                logInfo = emailid + " has been locked.";
+                logInfo = emailid + " account has been locked.";
+            }
+            else if (status == "unlock")
+            {
+                logInfo = emailid + " account has been recovered.";
             }
             else
             {
@@ -400,11 +409,12 @@ namespace SITConnect_201128S
             {
                 using (SqlConnection con = new SqlConnection(MYDBConnectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Logs VALUES(@Log)"))
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Logs VALUES(@DateTime, @Log)"))
                     {
                         using (SqlDataAdapter sda = new SqlDataAdapter())
                         {
                             cmd.CommandType = CommandType.Text;
+                            cmd.Parameters.AddWithValue("@DateTime", DateTime.Now);
                             cmd.Parameters.AddWithValue("@Log", logInfo);
                             cmd.Connection = con;
                             con.Open();
