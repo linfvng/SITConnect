@@ -7,7 +7,7 @@
     <title>Login Page</title>
     <link rel="stylesheet" href="~/css/login.css" />
 
-    <script src="https://www.google.com/recaptcha/api.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=6Lf291MeAAAAAAH_KnOISmhrEQVGiDb1EiquKySU"></script>
 </head>
 <body>
     <ul>
@@ -38,7 +38,7 @@
                         <asp:TextBox ID="passwordTB" runat="server" TextMode="Password" Width="250px"></asp:TextBox>
                     </div>
                 </div>
-                <div class="g-recaptcha" data-sitekey="6Lf1rEoeAAAAAAuTVJUdFm_tchrRwRhaK71drzna"></div>
+                <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response"/>
                 <asp:Label ID="error" runat="server" ForeColor="Red"></asp:Label>
                 <br />
  
@@ -49,5 +49,13 @@
 
         </div>
     </form>
+
+    <script>
+        grecaptcha.ready(function () {
+            grecaptcha.execute('6Lf291MeAAAAAAH_KnOISmhrEQVGiDb1EiquKySU', { action: 'Login' }).then(function (token) {
+                document.getElementById("g-recaptcha-response").value = token;
+            });
+        });
+    </script>
 </body>
 </html>
