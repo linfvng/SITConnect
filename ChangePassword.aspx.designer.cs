@@ -15,15 +15,6 @@ namespace SITConnect_201128S
     {
 
         /// <summary>
-        /// logout control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button logout;
-
-        /// <summary>
         /// form1 control.
         /// </summary>
         /// <remarks>
@@ -87,22 +78,31 @@ namespace SITConnect_201128S
         protected global::System.Web.UI.WebControls.Label pwdchecker;
 
         /// <summary>
-        /// sPassword control.
+        /// cnPassword control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label sPassword;
+        protected global::System.Web.UI.WebControls.Label cnPassword;
 
         /// <summary>
-        /// sPasswordTB control.
+        /// cnPasswordTB control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox sPasswordTB;
+        protected global::System.Web.UI.WebControls.TextBox cnPasswordTB;
+
+        /// <summary>
+        /// cnPasswordError control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label cnPasswordError;
 
         /// <summary>
         /// SubmitBtn control.

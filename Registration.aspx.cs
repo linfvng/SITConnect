@@ -80,7 +80,7 @@ namespace SITConnect_201128S
             }
             if (scores < 4)
             {
-                pwdchecker.Text = "Password Status : " + status;
+                pwdchecker.Text = "*Password Status : " + status;
                 pwdchecker.ForeColor = Color.Red;
                 pwdchecker.Attributes.Add("style", "visibility:visible");
                 validPwd = false;
@@ -121,7 +121,7 @@ namespace SITConnect_201128S
             {
                 using (SqlConnection con = new SqlConnection(MYDBConnectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@Fname, @Lname, @CreditCard, @Email, @PasswordHash, @PasswordSalt, @DoB, @Photo, @IV, @Key, @Count, @Lockdatetime)"))
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@Fname, @Lname, @CreditCard, @Email, @PasswordHash, @PasswordSalt, @DoB, @Photo, @IV, @Key, @Count, @Lockdatetime, @PasswordHistory1, @PasswordHistory2)"))
                     {
                         using (SqlDataAdapter sda = new SqlDataAdapter())
                         {
@@ -138,6 +138,8 @@ namespace SITConnect_201128S
                             cmd.Parameters.AddWithValue("@Key", Convert.ToBase64String(Key));
                             cmd.Parameters.AddWithValue("@Count", 3);
                             cmd.Parameters.AddWithValue("@Lockdatetime", DBNull.Value);
+                            cmd.Parameters.AddWithValue("@PasswordHistory1", finalHash);
+                            cmd.Parameters.AddWithValue("@PasswordHistory2", DBNull.Value);
                             cmd.Connection = con;
                             con.Open();
                             cmd.ExecuteNonQuery();
