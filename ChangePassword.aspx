@@ -55,6 +55,7 @@
 <body>
     <ul>
         <a class="navbar-brand" style="float:left" href=""><strong><span>SIT</span>Connect</strong></a>
+        <li><a><asp:Button ID="logout" runat="server" Text="Logout" OnClick="Logout" /></a></li>
         <li><a href="/ChangePassword.aspx">Change Password</a></li>
         <li><a href="/Homepage.aspx">Home</a></li>
     </ul>
@@ -69,6 +70,7 @@
                     <asp:TextBox ID="cPasswordTB" class="form-control" runat="server" TextMode="Password"></asp:TextBox>
                     <asp:Label ID="cPasswordError" runat="server" Text=""></asp:Label>
                     <br />
+                    <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ControlToValidate="cPasswordTB" ErrorMessage="*Current Password is empty" ForeColor="Red"></asp:RequiredFieldValidator>
                 </div>
 
                 <div id="row">
@@ -76,6 +78,8 @@
                     <br />
                     <asp:TextBox ID="nPasswordTB" runat="server" onkeyup="javascript:validate()" TextMode="Password"></asp:TextBox>
                     <asp:Label ID="pwdchecker" runat="server" Text="vaildate"></asp:Label>
+                    <br />
+                    <asp:RequiredFieldValidator ID="RequiredFieldValidator2" runat="server" ControlToValidate="nPasswordTB" ErrorMessage="*New Password is empty" ForeColor="Red"></asp:RequiredFieldValidator>
                 </div>
 
                 <div id="row">
@@ -83,6 +87,8 @@
                     <br />
                     <asp:TextBox ID="cnPasswordTB" runat="server" TextMode="Password"></asp:TextBox>
                     <asp:Label ID="cnPasswordError" runat="server" Text=""></asp:Label>
+                    <br />
+                    <asp:RequiredFieldValidator ID="RequiredFieldValidator3" runat="server" ControlToValidate="cnPasswordTB" ErrorMessage="*Confirm Password is empty" ForeColor="Red"></asp:RequiredFieldValidator>
                 </div>
 
                 <div id="submit">

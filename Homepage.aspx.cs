@@ -25,8 +25,6 @@ namespace SITConnect_201128S
                 else
                 {
                     fullname.Text = name(Session["LoggedIn"].ToString());
-                    
-
                 }
             }
             else
@@ -44,7 +42,7 @@ namespace SITConnect_201128S
             Session.Abandon();
             Session.RemoveAll();
 
-            Response.Redirect("Index.aspx", false);
+            Response.Redirect("Login.aspx", false);
 
             if (Request.Cookies["ASP.NET_SessionId"] != null)
             {

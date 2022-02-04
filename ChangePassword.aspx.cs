@@ -23,7 +23,17 @@ namespace SITConnect_201128S
 
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            if (Session["LoggedIn"] != null && Session["AuthToken"] != null && Request.Cookies["AuthToken"] != null)
+            {
+                if (!Session["AuthToken"].ToString().Equals(Request.Cookies["AuthToken"].Value))
+                {
+                    Response.Redirect("Login.aspx", false);
+                }
+            }
+            else
+            {
+                Response.Redirect("Login.aspx", false);
+            }
         }
 
         protected void SubmitBtn_Click(object sender, EventArgs e)
@@ -89,9 +99,10 @@ namespace SITConnect_201128S
                             string npwdWithSalt = npwd + dbSalt;
                             byte[] nhashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(npwdWithSalt));
                             string nuserHash = Convert.ToBase64String(nhashWithSalt);
-
+                            // Validate Past 2 Password
                             if (nuserHash != dbHistory1 && nuserHash != dbHistory2)
                             {
+                                // Validate New Password equal to Confirm Password
                                 if (nPasswordTB.Text == cnPasswordTB.Text)
                                 {
                                     updatePasswordHistory(emailid, nuserHash, dbHistory1);
@@ -134,7 +145,7 @@ namespace SITConnect_201128S
             Session.Abandon();
             Session.RemoveAll();
 
-            Response.Redirect("Index.aspx", false);
+            Response.Redirect("Login.aspx", false);
 
             if (Request.Cookies["ASP.NET_SessionId"] != null)
             {
