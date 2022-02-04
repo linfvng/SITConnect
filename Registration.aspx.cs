@@ -22,60 +22,41 @@ namespace SITConnect_201128S
         byte[] Photo;
         byte[] Key;
         byte[] IV;
+        Log log = new Log();
+        Password pwdchk = new Password();
         protected void Page_Load(object sender, EventArgs e)
         {
 
         }
 
-        private int checkPassword(string password)
+        protected void SubmitBtn_Click(object sender, EventArgs e)
         {
-            int score = 0;
+            HttpPostedFile postedFile = photoTB.PostedFile;
+            string fileName = Path.GetFileName(postedFile.FileName);
+            string fileExtension = Path.GetExtension(fileName);
 
-            // Score 1 very weak
-            // if length of password is less than 8 chars
-            if (password.Length < 8)
+            bool validFile;
+            bool validPwd;
+
+            // File Upload Validation
+            if(fileExtension.ToLower() == ".jpg" || fileExtension.ToLower() == ".bmp" || fileExtension.ToLower() == ".gif" || fileExtension.ToLower() == ".png")
             {
-                return 1;
+                Stream stream = postedFile.InputStream;
+                BinaryReader binaryReader = new BinaryReader(stream);
+                Photo = binaryReader.ReadBytes((int)stream.Length);
+
+                validFile = true;
             }
             else
             {
-                score = 1;
+                photoError.Text = "Only images (.jpg, .png, .gif, .bmp) can be upload";
+                photoError.ForeColor = System.Drawing.Color.Red;
+
+                validFile = false;
             }
 
-            // Score 2 weak
-            // if password contains only lowercase letter(s)
-            if (Regex.IsMatch(password, "[a-z]"))
-            {
-                score++;
-            }
-
-            // Score 3 medium
-            // if password contains only lowercase and uppercase letter(s)
-            if (Regex.IsMatch(password, "[A-Z]"))
-            {
-                score++;
-            }
-
-            // Score 4 strong
-            // if password contains numeral(s)
-            if (Regex.IsMatch(password, "[0-9]"))
-            {
-                score++;
-            }
-
-            // Score 5 excellent
-            // if password contains special character(s)
-            if (Regex.IsMatch(password, "[^a-zA-Z0-9]"))
-            {
-                score++;
-            }
-
-            return score;
-        }
-        protected void Chkpwd(object sender, EventArgs e)
-        {
-            // Extract data from textbox
-            int scores = checkPassword(passwordTB.Text);
+            // Password Validation
+            int scores = pwdchk.checkPassword(passwordTB.Text);
             string status = "";
             switch (scores)
             {
@@ -97,43 +78,14 @@ namespace SITConnect_201128S
                 default:
                     break;
             }
-            pwdstatus.Text = "Status : " + status;
             if (scores < 4)
             {
-                pwdstatus.ForeColor = Color.Red;
-                return;
-            }
-            pwdstatus.ForeColor = Color.Green;
-        }
-
-        protected void SubmitBtn_Click(object sender, EventArgs e)
-        {
-            HttpPostedFile postedFile = photoTB.PostedFile;
-            string fileName = Path.GetFileName(postedFile.FileName);
-            string fileExtension = Path.GetExtension(fileName);
-
-            bool validFile = false;
-            bool validPwd = false;
-
-            if(fileExtension.ToLower() == ".jpg" || fileExtension.ToLower() == ".bmp" || fileExtension.ToLower() == ".gif" || fileExtension.ToLower() == ".png")
-            {
-                Stream stream = postedFile.InputStream;
-                BinaryReader binaryReader = new BinaryReader(stream);
-                Photo = binaryReader.ReadBytes((int)stream.Length);
-
-                validFile = true;
+                pwdchecker.Text = "Password Status : " + status;
+                pwdchecker.ForeColor = Color.Red;
+                pwdchecker.Attributes.Add("style", "visibility:visible");
+                validPwd = false;
             }
             else
-            {
-                photoError.Text = "Only images (.jpg, .png, .gif, .bmp) can be upload";
-                photoError.ForeColor = System.Drawing.Color.Red;
-
-                validFile = false;
-            }
-
-
-            int scores = checkPassword(passwordTB.Text);
-            if (scores == 5)
             {
                 //string pwd = get value from your Textbox
                 string pwd = passwordTB.Text.ToString().Trim(); ;
@@ -145,7 +97,6 @@ namespace SITConnect_201128S
                 salt = Convert.ToBase64String(saltByte);
                 SHA512Managed hashing = new SHA512Managed();
                 string pwdWithSalt = pwd + salt;
-                byte[] plainHash = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwd));
                 byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
                 finalHash = Convert.ToBase64String(hashWithSalt);
                 RijndaelManaged cipher = new RijndaelManaged();
@@ -155,10 +106,7 @@ namespace SITConnect_201128S
 
                 validPwd = true;
             }
-            else
-            {
-                validPwd = false;
-            }
+
             if (validPwd && validFile)
             {
                 createAccount();
@@ -194,6 +142,9 @@ namespace SITConnect_201128S
                             con.Open();
                             cmd.ExecuteNonQuery();
                             con.Close();
+
+                            //Log for successful registration
+                            log.logged(emailTB.Text, "register success");
                         }
                     }
                 }

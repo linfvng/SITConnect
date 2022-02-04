@@ -13,7 +13,7 @@ namespace SITConnect_201128S
     {
 
         string MYDBConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["SITConnect"].ConnectionString;
-        static string logInfo;
+        Log log = new Log();
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["LoggedIn"] != null && Session["AuthToken"] != null && Request.Cookies["AuthToken"] != null)
@@ -37,8 +37,8 @@ namespace SITConnect_201128S
 
         protected void Logout(object sender, EventArgs e)
         {
-            //Log logout account
-            logged(Session["LoggedIn"].ToString(), "logout");
+            //Log for account logout
+            log.logged(Session["LoggedIn"].ToString(), "logout");
 
             Session.Clear();
             Session.Abandon();
@@ -89,38 +89,6 @@ namespace SITConnect_201128S
             }
             finally { connection.Close(); }
             return n;
-        }
-
-        protected void logged(string emailid, string status)
-        {
-            if (status == "logout")
-            {
-                logInfo = emailid + " has logout successfully.";
-            }
-            try
-            {
-                using (SqlConnection con = new SqlConnection(MYDBConnectionString))
-                {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Logs VALUES(@DateTime, @Log)"))
-                    {
-                        using (SqlDataAdapter sda = new SqlDataAdapter())
-                        {
-                            cmd.CommandType = CommandType.Text;
-                            cmd.Parameters.AddWithValue("@DateTime", DateTime.Now);
-                            cmd.Parameters.AddWithValue("@Log", logInfo);
-                            cmd.Connection = con;
-                            con.Open();
-                            cmd.ExecuteNonQuery();
-                            con.Close();
-                        }
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
         }
     }
 }

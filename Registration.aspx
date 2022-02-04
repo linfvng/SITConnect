@@ -70,6 +70,7 @@
                     <asp:Label ID="fname" runat="server" Text="First Name"></asp:Label>
                     <br />
                     <asp:TextBox ID="fnameTB" class="form-control" runat="server"></asp:TextBox>
+                    <br />
                     <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ControlToValidate="fnameTB" ErrorMessage="*First Name is empty" ForeColor="Red"></asp:RequiredFieldValidator>
                 </div>
 
@@ -77,6 +78,7 @@
                     <asp:Label ID="lname" runat="server" Text="Last Name"></asp:Label>
                     <br />
                     <asp:TextBox ID="lnameTB" runat="server"></asp:TextBox>
+                    <br />
                     <asp:RequiredFieldValidator ID="RequiredFieldValidator2" runat="server" ControlToValidate="lnameTB" ErrorMessage="*Last Name is empty" ForeColor="Red"></asp:RequiredFieldValidator>
                 </div>
 
@@ -84,6 +86,7 @@
                     <asp:Label ID="ccard" runat="server" Text="Credit Card"></asp:Label>
                     <br />
                     <asp:TextBox ID="ccardTB" runat="server"></asp:TextBox>
+                    <br />
                     <asp:RequiredFieldValidator ID="RequiredFieldValidator3" runat="server" ControlToValidate="ccardTB" ErrorMessage="*Credit Card is empty" ForeColor="Red"></asp:RequiredFieldValidator>
                 </div>
 
@@ -91,9 +94,9 @@
                     <asp:Label ID="email" runat="server" Text="Email"></asp:Label>
                     <br />
                     <asp:TextBox ID="emailTB" runat="server"></asp:TextBox>
-                    <asp:RequiredFieldValidator ID="RequiredFieldValidator4" runat="server" ControlToValidate="emailTB" ErrorMessage="*Email is empty" ForeColor="Red"></asp:RequiredFieldValidator>
-                    <br />
                     <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" ErrorMessage="*Invalid Email" ControlToValidate="emailTB" ForeColor="Red" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
+                    <br />
+                    <asp:RequiredFieldValidator ID="RequiredFieldValidator6" runat="server" ControlToValidate="emailTB" ErrorMessage="*Email is empty" ForeColor="Red"></asp:RequiredFieldValidator>
                 </div>
 
                 <div id="row">
@@ -103,18 +106,13 @@
                     <asp:Label ID="pwdchecker" runat="server" Text="vaildate"></asp:Label>
                     <br />
                     <asp:RequiredFieldValidator ID="RequiredFieldValidator5" runat="server" ControlToValidate="passwordTB" ErrorMessage="*Password is empty" ForeColor="Red"></asp:RequiredFieldValidator>
-                    <br />
-                    <asp:Button ID="chkpwd" runat="server" Text="Check Password" OnClick="Chkpwd"/>
-                    <br />
-                    <asp:Label ID="pwdstatus" runat="server" Text=""></asp:Label>
                 </div>
 
                 <div id="row">
                     <asp:Label ID="dob" runat="server" Text="Date of Birth"></asp:Label>
                     <br />
-
                     <asp:TextBox ID="dobTB" type="date" runat="server"></asp:TextBox>
-
+                    <br />
                     <asp:RequiredFieldValidator ID="RequiredFieldValidator7" runat="server" ControlToValidate="dobTB" ErrorMessage="*Date of Birth is empty" ForeColor="Red"></asp:RequiredFieldValidator>
 
                 </div>
@@ -123,9 +121,10 @@
                     <asp:Label ID="photoLabel" runat="server" Text="Photo"></asp:Label>
                     <br />
                     <asp:FileUpload ID="photoTB" runat="server" />
+                    <asp:Label ID="photoError" runat="server" Text=""></asp:Label>
+                    <br />
                     <asp:RequiredFieldValidator ID="RequiredFieldValidator8" runat="server" ControlToValidate="photoTB" ErrorMessage="*Photo is empty" ForeColor="Red"></asp:RequiredFieldValidator>
                     <br />
-                    <asp:Label ID="photoError" runat="server" Text=""></asp:Label>
                 </div>
 
                 <div id="submit">

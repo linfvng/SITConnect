@@ -17,11 +17,9 @@ namespace SITConnect_201128S
     public partial class Login : System.Web.UI.Page
     {
         string MYDBConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["SITConnect"].ConnectionString;
-        static string finalHash;
-        static string salt;
-        static string logInfo;
-        byte[] Key;
-        byte[] IV;
+        Log log = new Log();
+        Password pwdchk = new Password();
+
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -33,11 +31,11 @@ namespace SITConnect_201128S
             string pwd = passwordTB.Text.ToString().Trim();
             string emailid = emailTB.Text.ToString().Trim();
             SHA512Managed hashing = new SHA512Managed();
-            string dbHash = getDBHash(emailid);
-            string dbSalt = getDBSalt(emailid);
+            string dbHash = pwdchk.getDBHash(emailid);
+            string dbSalt = pwdchk.getDBSalt(emailid);
             try
             {
-                string currentAttempt = Int32.Parse(counter(emailid)).ToString();
+                string currentAttempt = Int32.Parse(countAttempt(emailid)).ToString();
                 if (Int32.Parse(currentAttempt) > 0)
                 {
                     if (ValidateCaptcha())
@@ -60,10 +58,10 @@ namespace SITConnect_201128S
                                 Response.Cookies.Add(new HttpCookie("AuthToken", guid));
 
                                 //Reset the account attempt
-                                updateattempt(emailid, "3");
+                                updateAttempt(emailid, "3");
 
-                                //Log successful login
-                                logged(emailid, "success");
+                                //Log for successful login
+                                log.logged(emailid, "login success");
 
                                 Response.Redirect("Homepage.aspx", false);
                             }
@@ -72,24 +70,20 @@ namespace SITConnect_201128S
                             else
                             {
                                 error.Text = "Email or Password is not valid. Please try again.";
-                                string subtractAttempt = (Int32.Parse(counter(emailid)) - 1).ToString();
-                                updateattempt(emailid, subtractAttempt);
+                                string subtractAttempt = (Int32.Parse(countAttempt(emailid)) - 1).ToString();
+                                updateAttempt(emailid, subtractAttempt);
 
-                                //Log fail login
-                                logged(emailid, "fail");
+                                //Log for failed login
+                                log.logged(emailid, "fail");
                             }
                         }
                         else
                         {
                             error.Text = "Email or Password is not valid. Please try again.";
 
-                            //Log fail login
-                            logged(emailid, "fail");
+                            //Log for failed login
+                            log.logged(emailid, "fail");
                         }
-                    }
-                    else
-                    {
-                        error.Text = "Invalid CAPTCHA";
                     }
                 }
                 else
@@ -100,25 +94,25 @@ namespace SITConnect_201128S
                     {
                         locked(emailid, locktimedate);
 
-                        //Log lockout account
-                        logged(emailid, "locked");
+                        //Log for account lockout
+                        log.logged(emailid, "locked");
                     }
                     else
                     {
                         DateTime cTimedate = Convert.ToDateTime(locktimedate);
-                        DateTime lTimedate = Convert.ToDateTime(locktime(emailid));
+                        DateTime lTimedate = Convert.ToDateTime(lockedTime(emailid));
                         TimeSpan ts = cTimedate.Subtract(lTimedate);
                         Int32 minLocked = Convert.ToInt32(ts.TotalMinutes);
                         Int32 pendingMin = 15 - minLocked;
                         if (pendingMin <= 0)
                         {
-                            updateattempt(emailid, "3");
-                            updatelock(emailid);
+                            updateAttempt(emailid, "3");
+                            updateLock(emailid);
 
                             error.Text = "Your account has been recovered. Please relogin.";
 
-                            //Log account recovered
-                            logged(emailid, "unlock");
+                            //Log for account recovery
+                            log.logged(emailid, "recover");
                         }
                     }
                 }
@@ -131,73 +125,7 @@ namespace SITConnect_201128S
 
         }
 
-        protected string getDBHash(string emailid)
-        {
-            string h = null;
-            SqlConnection connection = new SqlConnection(MYDBConnectionString);
-            string sql = "select PasswordHash FROM Account WHERE Email=@EMAILID";
-            SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@EMAILID", emailid);
-            try
-            {
-                connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-
-                    while (reader.Read())
-                    {
-                        if (reader["PasswordHash"] != null)
-                        {
-                            if (reader["PasswordHash"] != DBNull.Value)
-                            {
-                                h = reader["PasswordHash"].ToString();
-                            }
-                        }
-                    }
-
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-            finally { connection.Close(); }
-            return h;
-        }
-
-        protected string getDBSalt(string emailid)
-        {
-            string s = null;
-            SqlConnection connection = new SqlConnection(MYDBConnectionString);
-            string sql = "select PASSWORDSALT FROM Account WHERE Email=@EMAILID";
-            SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@EMAILID", emailid);
-            try
-            {
-                connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        if (reader["PASSWORDSALT"] != null)
-                        {
-                            if (reader["PASSWORDSALT"] != DBNull.Value)
-                            {
-                                s = reader["PASSWORDSALT"].ToString();
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-            finally { connection.Close(); }
-            return s;
-        }
-
-        protected string counter(string emailid)
+        protected string countAttempt(string emailid)
         {
             string c = "1";
             SqlConnection connection = new SqlConnection(MYDBConnectionString);
@@ -226,7 +154,7 @@ namespace SITConnect_201128S
             return c;
         }
 
-        protected string updateattempt(string emailid, string count)
+        protected string updateAttempt(string emailid, string count)
         {
             string a = null;
             SqlConnection connection = new SqlConnection(MYDBConnectionString);
@@ -318,7 +246,7 @@ namespace SITConnect_201128S
             return a;
         }
 
-        protected string locktime(string emailid)
+        protected string lockedTime(string emailid)
         {
             string lt = null;
             SqlConnection connection = new SqlConnection(MYDBConnectionString);
@@ -347,7 +275,7 @@ namespace SITConnect_201128S
             return lt;
         }
 
-        protected string updatelock(string emailid)
+        protected string updateLock(string emailid)
         {
             string a = null;
             SqlConnection connection = new SqlConnection(MYDBConnectionString);
@@ -377,50 +305,7 @@ namespace SITConnect_201128S
             return a;
         }
 
-        protected void logged(string emailid, string status)
-        {
-            if (status == "success")
-            {
-                logInfo = emailid + " has successfully login.";
-            }
-            else if (status == "locked")
-            {
-                logInfo = emailid + " account has been locked.";
-            }
-            else if (status == "unlock")
-            {
-                logInfo = emailid + " account has been recovered.";
-            }
-            else
-            {
-                logInfo = emailid + " has login failed.";
-            }
-            try
-            {
-                using (SqlConnection con = new SqlConnection(MYDBConnectionString))
-                {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Logs VALUES(@DateTime, @Log)"))
-                    {
-                        using (SqlDataAdapter sda = new SqlDataAdapter())
-                        {
-                            cmd.CommandType = CommandType.Text;
-                            cmd.Parameters.AddWithValue("@DateTime", DateTime.Now);
-                            cmd.Parameters.AddWithValue("@Log", logInfo);
-                            cmd.Connection = con;
-                            con.Open();
-                            cmd.ExecuteNonQuery();
-                            con.Close();
-                        }
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-        }
-
+        // Google reCaptcha v3
         public class MyObject
         {
             public string success { get; set; }
