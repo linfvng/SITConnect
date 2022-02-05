@@ -37,6 +37,10 @@ namespace SITConnect_201128S
             {
                 logInfo = emailid + " has register successfully.";
             }
+            else if (status == "change password")
+            {
+                logInfo = emailid + " has change password successfully.";
+            }
             try
             {
                 using (SqlConnection con = new SqlConnection(MYDBConnectionString))

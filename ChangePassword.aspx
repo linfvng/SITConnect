@@ -4,7 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Registration Form</title>
+    <title>Change Password</title>
      <link rel="stylesheet" href="~/css/register.css" />
 
     <script type="text/javascript">
@@ -55,7 +55,6 @@
 <body>
     <ul>
         <a class="navbar-brand" style="float:left" href=""><strong><span>SIT</span>Connect</strong></a>
-        <li><a><asp:Button ID="logout" runat="server" Text="Logout" OnClick="Logout" /></a></li>
         <li><a href="/ChangePassword.aspx">Change Password</a></li>
         <li><a href="/Homepage.aspx">Home</a></li>
     </ul>

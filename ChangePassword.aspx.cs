@@ -106,6 +106,8 @@ namespace SITConnect_201128S
                                 if (nPasswordTB.Text == cnPasswordTB.Text)
                                 {
                                     updatePasswordHistory(emailid, nuserHash, dbHistory1);
+                                    //Log for change password
+                                    log.logged(Session["LoggedIn"].ToString(), "change password");
                                     Response.Redirect("Homepage.aspx", false);
                                 }
                                 else
@@ -134,30 +136,6 @@ namespace SITConnect_201128S
                 throw new Exception(ex.ToString());
             }
             finally { }
-        }
-
-        protected void Logout(object sender, EventArgs e)
-        {
-            //Log for account logout
-            log.logged(Session["LoggedIn"].ToString(), "logout");
-
-            Session.Clear();
-            Session.Abandon();
-            Session.RemoveAll();
-
-            Response.Redirect("Login.aspx", false);
-
-            if (Request.Cookies["ASP.NET_SessionId"] != null)
-            {
-                Request.Cookies["ASP.NET_SessionId"].Value = string.Empty;
-                Request.Cookies["ASP.NET_SessionId"].Expires = DateTime.Now.AddMonths(-20);
-            }
-
-            if (Request.Cookies["AuthToken"] != null)
-            {
-                Request.Cookies["AuthToken"].Value = string.Empty;
-                Request.Cookies["AuthToken"].Expires = DateTime.Now.AddMonths(-20);
-            }
         }
 
         protected string getDBPwdHistory1(string emailid)
@@ -258,7 +236,5 @@ namespace SITConnect_201128S
             finally { connection.Close(); }
             return a;
         }
-
-
     }
 }
