@@ -51,33 +51,58 @@ namespace SITConnect_201128S
 
                             if (userHash.Equals(dbHash))
                             {
-                                Session["LoggedIn"] = emailTB.Text.Trim();
+                                // Max Password Age violation(3 Min)
+                                string cdateTime = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+                                DateTime cTimedate = Convert.ToDateTime(cdateTime);
+                                DateTime mpTimedate = Convert.ToDateTime(maxPwdTime(emailid));
+                                TimeSpan ts = cTimedate.Subtract(mpTimedate);
+                                Int32 maxPwdLocked = Convert.ToInt32(ts.TotalMinutes);
+                                Int32 pendingMin = 3 - maxPwdLocked;
 
-                                // creates  a new GUID and save into the session
-                                string guid = Guid.NewGuid().ToString();
-                                Session["AuthToken"] = guid;
+                                if (pendingMin <= 0)
+                                {
+                                    Session["LoggedIn"] = emailTB.Text.Trim();
 
-                                //now create a new cookie with this guid value
-                                Response.Cookies.Add(new HttpCookie("AuthToken", guid));
+                                    // creates  a new GUID and save into the session
+                                    string guid = Guid.NewGuid().ToString();
+                                    Session["AuthToken"] = guid;
 
-                                //Reset the account attempt
-                                updateAttempt(emailid, "3");
+                                    //now create a new cookie with this guid value
+                                    Response.Cookies.Add(new HttpCookie("AuthToken", guid));
 
-                                //Generate OTP
-                                Random random = new Random();
-                                generateNum = random.Next(000000, 999999).ToString();
-                                createOTP(emailid, generateNum);
+                                    //Log for successful login
+                                    log.logged(emailid, "password expiry");
 
-                                //Send OTP mail
-                                sendM(generateNum);
+                                    Response.Redirect("ChangePassword.aspx", false);
+                                }
+                                else
+                                {
+                                    Session["LoggedIn"] = emailTB.Text.Trim();
 
-                                //Log for successful login
-                                log.logged(emailid, "login success");
+                                    // creates  a new GUID and save into the session
+                                    string guid = Guid.NewGuid().ToString();
+                                    Session["AuthToken"] = guid;
 
-                                Response.Redirect("VerificationEmail.aspx", false);
+                                    //now create a new cookie with this guid value
+                                    Response.Cookies.Add(new HttpCookie("AuthToken", guid));
+
+                                    //Reset the account attempt
+                                    updateAttempt(emailid, "3");
+
+                                    //Generate OTP
+                                    Random random = new Random();
+                                    generateNum = random.Next(100000, 999999).ToString();
+                                    createOTP(emailid, generateNum);
+
+                                    //Send OTP mail
+                                    sendMail(generateNum);
+
+                                    //Log for successful login
+                                    log.logged(emailid, "login success");
+
+                                    Response.Redirect("VerificationEmail.aspx", false);
+                                }
                             }
-
-
                             else
                             {
                                 error.Text = "Email or Password is not valid. Please try again.";
@@ -99,7 +124,7 @@ namespace SITConnect_201128S
                 }
                 else
                 {
-                    error.Text = "Your account has been locked for 15 minutes for 3 invalid attempts.";
+                    error.Text = "Your account has been locked for 1 minutes for 3 invalid attempts.";
                     string locktimedate = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
                     if (lockStatus(emailid) == null)
                     {
@@ -114,7 +139,7 @@ namespace SITConnect_201128S
                         DateTime lTimedate = Convert.ToDateTime(lockedTime(emailid));
                         TimeSpan ts = cTimedate.Subtract(lTimedate);
                         Int32 minLocked = Convert.ToInt32(ts.TotalMinutes);
-                        Int32 pendingMin = 15 - minLocked;
+                        Int32 pendingMin = 1 - minLocked;
                         if (pendingMin <= 0)
                         {
                             updateAttempt(emailid, "3");
@@ -391,7 +416,7 @@ namespace SITConnect_201128S
             return otp;
         }
 
-        protected string sendM(string code)
+        protected string sendMail(string code)
         {
             string s = null;
             SmtpClient smtp = new SmtpClient();
@@ -400,7 +425,7 @@ namespace SITConnect_201128S
             smtp.Credentials = new NetworkCredential("emailgenerator821102@gmail.com", "Nyp@821102");
             smtp.EnableSsl = true;
             MailMessage msg = new MailMessage();
-            msg.Subject = "Your 6 digit OTP Code";
+            msg.Subject = "Account Verification";
             msg.Body = "Dear Sir/Madam:\n\n\tYour Email OTP is " + code + ".\n\nBest Regards,\nSITConnect Staff";
             msg.To.Add(emailTB.Text.ToString());
             string fromaddress = "SITConnect <emailgenerator821102@gmail.com>";
@@ -414,6 +439,35 @@ namespace SITConnect_201128S
             {
                 throw;
             }
+        }
+
+        protected string maxPwdTime(string emailid)
+        {
+            string mp = null;
+            SqlConnection connection = new SqlConnection(MYDBConnectionString);
+            string sql = "select MaxPasswordAge FROM Account WHERE Email=@EMAILID";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@EMAILID", emailid);
+            try
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["MaxPasswordAge"] != null)
+                        {
+                            mp = reader["MaxPasswordAge"].ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { connection.Close(); }
+            return mp;
         }
 
     }

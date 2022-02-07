@@ -63,6 +63,7 @@
         <div id="container">
             <div id="inner-container">
                 <h2 id="title">Change Password</h2>
+                <asp:Label ID="pwdAgeError" runat="server" Text=""></asp:Label>
                 <div id="row" class="form-group">
                     <asp:Label ID="cPassword" runat="server" Text="Current Password"></asp:Label>
                     <br />

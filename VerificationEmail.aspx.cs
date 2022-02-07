@@ -27,14 +27,14 @@ namespace SITConnect_201128S
             }
         }
 
-        protected void verifynBtn_Click(object sender, EventArgs e)
+        protected void verifyBtn_Click(object sender, EventArgs e)
         {
             if (otpTB.Text == emailOTP(Session["LoggedIn"].ToString()))
             {
                 //Log for correct otp
                 log.logged(Session["LoggedIn"].ToString(), "otp success");
 
-                Response.Redirect("VerificationEmail.aspx", false);
+                Response.Redirect("Homepage.aspx", false);
             }
             else
             {

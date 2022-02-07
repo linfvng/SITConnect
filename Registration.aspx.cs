@@ -121,7 +121,7 @@ namespace SITConnect_201128S
             {
                 using (SqlConnection con = new SqlConnection(MYDBConnectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@Fname, @Lname, @CreditCard, @Email, @Verification, @PasswordHash, @PasswordSalt, @DoB, @Photo, @IV, @Key, @Count, @Lockdatetime, @PasswordHistory1, @PasswordHistory2)"))
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@Fname, @Lname, @CreditCard, @Email, @Verification, @PasswordHash, @PasswordSalt, @DoB, @Photo, @IV, @Key, @Count, @Lockdatetime, @PasswordHistory1, @PasswordHistory2, @MinPasswordAge,  @MaxPasswordAge)"))
                     {
                         using (SqlDataAdapter sda = new SqlDataAdapter())
                         {
@@ -141,6 +141,8 @@ namespace SITConnect_201128S
                             cmd.Parameters.AddWithValue("@Lockdatetime", DBNull.Value);
                             cmd.Parameters.AddWithValue("@PasswordHistory1", finalHash);
                             cmd.Parameters.AddWithValue("@PasswordHistory2", DBNull.Value);
+                            cmd.Parameters.AddWithValue("@MinPasswordAge", DBNull.Value);
+                            cmd.Parameters.AddWithValue("@MaxPasswordAge", DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"));
                             cmd.Connection = con;
                             con.Open();
                             cmd.ExecuteNonQuery();

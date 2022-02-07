@@ -46,88 +46,116 @@ namespace SITConnect_201128S
             string dbSalt = pwdchk.getDBSalt(emailid);
             string dbHistory1 = getDBPwdHistory1(emailid);
             string dbHistory2 = getDBPwdHistory2(emailid);
+            Int32 pendingMin;
             try
             {
-                if (dbSalt != null && dbSalt.Length > 0 && dbHash != null && dbHash.Length > 0)
+                // Min Password Age violation(1 Min)
+                string cdateTime = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+                DateTime cTimedate = Convert.ToDateTime(cdateTime);
+                if (minPwdTime(emailid) != DBNull.Value.ToString())
                 {
-                    string pwdWithSalt = cpwd + dbSalt;
-                    byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
-                    string userHash = Convert.ToBase64String(hashWithSalt);
-                    // Checking Current Password
-                    if (userHash != dbHash)
+                    DateTime mpTimedate = Convert.ToDateTime(minPwdTime(emailid));
+                    TimeSpan ts = cTimedate.Subtract(mpTimedate);
+                    Int32 minPwdLocked = Convert.ToInt32(ts.TotalMinutes);
+                    pendingMin = 1 - minPwdLocked;
+                }
+                else
+                {
+                    pendingMin = 0;
+                }
+
+                if (pendingMin <= 0)
+                {
+                    if (dbSalt != null && dbSalt.Length > 0 && dbHash != null && dbHash.Length > 0)
                     {
-                        cPasswordError.Text = "*Current Password is incorrect";
-                        cPasswordError.ForeColor = Color.Red;
-                        pwdchecker.Text = "";
-                        cnPasswordError.Text = "";
-                    }
-                    else
-                    {
-                        // Validate New Password
-                        int scores = pwdchk.checkPassword(nPasswordTB.Text);
-                        string status = "";
-                        switch (scores)
+                        string pwdWithSalt = cpwd + dbSalt;
+                        byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
+                        string userHash = Convert.ToBase64String(hashWithSalt);
+                        // Checking Current Password
+                        if (userHash != dbHash)
                         {
-                            case 1:
-                                status = "Very Weak";
-                                break;
-                            case 2:
-                                status = "Weak";
-                                break;
-                            case 3:
-                                status = "Medium";
-                                break;
-                            case 4:
-                                status = "Strong";
-                                break;
-                            case 5:
-                                status = "Excellent";
-                                break;
-                            default:
-                                break;
-                        }
-                        if (scores < 4)
-                        {
-                            pwdchecker.Text = "*Password Status : " + status;
-                            pwdchecker.ForeColor = Color.Red;
-                            pwdchecker.Attributes.Add("style", "visibility:visible");
-                            cPasswordError.Text = "";
+                            cPasswordError.Text = "*Current Password is incorrect";
+                            cPasswordError.ForeColor = Color.Red;
+                            pwdchecker.Text = "";
                             cnPasswordError.Text = "";
                         }
                         else
                         {
-                            string npwdWithSalt = npwd + dbSalt;
-                            byte[] nhashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(npwdWithSalt));
-                            string nuserHash = Convert.ToBase64String(nhashWithSalt);
-                            // Validate Past 2 Password
-                            if (nuserHash != dbHistory1 && nuserHash != dbHistory2)
+                            // Validate New Password
+                            int scores = pwdchk.checkPassword(nPasswordTB.Text);
+                            string status = "";
+                            switch (scores)
                             {
-                                // Validate New Password equal to Confirm Password
-                                if (nPasswordTB.Text == cnPasswordTB.Text)
-                                {
-                                    updatePasswordHistory(emailid, nuserHash, dbHistory1);
-                                    //Log for change password
-                                    log.logged(Session["LoggedIn"].ToString(), "change password");
-                                    Response.Redirect("Homepage.aspx", false);
-                                }
-                                else
-                                {
-                                    cnPasswordError.Text = "*Confirm Password does not match";
-                                    cnPasswordError.ForeColor = Color.Red;
-                                    cPasswordError.Text = "";
-                                    pwdchecker.Text = "";
-                                }
+                                case 1:
+                                    status = "Very Weak";
+                                    break;
+                                case 2:
+                                    status = "Weak";
+                                    break;
+                                case 3:
+                                    status = "Medium";
+                                    break;
+                                case 4:
+                                    status = "Strong";
+                                    break;
+                                case 5:
+                                    status = "Excellent";
+                                    break;
+                                default:
+                                    break;
                             }
-                            else
+                            if (scores < 4)
                             {
-                                pwdchecker.Text = "*Do not reuse your password";
+                                pwdchecker.Text = "*Password Status : " + status;
                                 pwdchecker.ForeColor = Color.Red;
                                 pwdchecker.Attributes.Add("style", "visibility:visible");
                                 cPasswordError.Text = "";
                                 cnPasswordError.Text = "";
                             }
+                            else
+                            {
+                                string npwdWithSalt = npwd + dbSalt;
+                                byte[] nhashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(npwdWithSalt));
+                                string nuserHash = Convert.ToBase64String(nhashWithSalt);
+                                // Validate Past 2 Password
+                                if (nuserHash != dbHistory1 && nuserHash != dbHistory2)
+                                {
+                                    // Validate New Password equal to Confirm Password
+                                    if (nPasswordTB.Text == cnPasswordTB.Text)
+                                    {
+                                        updatePasswordHistory(emailid, nuserHash, dbHistory1);
+
+                                        string minPwd = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+                                        setPwdAge(emailid, minPwd);
+
+                                        //Log for change password
+                                        log.logged(Session["LoggedIn"].ToString(), "change password");
+                                        Response.Redirect("Homepage.aspx", false);
+                                    }
+                                    else
+                                    {
+                                        cnPasswordError.Text = "*Confirm Password does not match";
+                                        cnPasswordError.ForeColor = Color.Red;
+                                        cPasswordError.Text = "";
+                                        pwdchecker.Text = "";
+                                    }
+                                }
+                                else
+                                {
+                                    pwdchecker.Text = "*Do not reuse your password";
+                                    pwdchecker.ForeColor = Color.Red;
+                                    pwdchecker.Attributes.Add("style", "visibility:visible");
+                                    cPasswordError.Text = "";
+                                    cnPasswordError.Text = "";
+                                }
+                            }
                         }
                     }
+                }
+                else
+                {
+                    pwdAgeError.Text = "Minimum Password Age violation";
+                    pwdAgeError.ForeColor = Color.Red;
                 }
 
             }
@@ -236,5 +264,65 @@ namespace SITConnect_201128S
             finally { connection.Close(); }
             return a;
         }
+
+        protected string setPwdAge(string emailid, string dateTime)
+        {
+            string mp = null;
+            SqlConnection connection = new SqlConnection(MYDBConnectionString);
+            string sql = "UPDATE Account SET MinPasswordAge=@dateTime, MaxPasswordAge=@dateTime WHERE Email=@EMAILID";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@dateTime", dateTime);
+            command.Parameters.AddWithValue("@EMAILID", emailid);
+            try
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["MinPasswordAge"] != null)
+                        {
+                            mp = reader["MinPasswordAge"].ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { connection.Close(); }
+            return mp;
+        }
+
+        protected string minPwdTime(string emailid)
+        {
+            string mp = null;
+            SqlConnection connection = new SqlConnection(MYDBConnectionString);
+            string sql = "select MinPasswordAge FROM Account WHERE Email=@EMAILID";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@EMAILID", emailid);
+            try
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["MinPasswordAge"] != null)
+                        {
+                            mp = reader["MinPasswordAge"].ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { connection.Close(); }
+            return mp;
+        }
+
     }
 }

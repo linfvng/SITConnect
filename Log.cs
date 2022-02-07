@@ -45,6 +45,10 @@ namespace SITConnect_201128S
             {
                 logInfo = emailid + " has been verified.";
             }
+            else if (status == "password expiry")
+            {
+                logInfo = emailid + " password has been expired.";
+            }
             try
             {
                 using (SqlConnection con = new SqlConnection(MYDBConnectionString))

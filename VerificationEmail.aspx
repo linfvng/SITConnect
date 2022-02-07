@@ -14,6 +14,7 @@
     <form id="form1" runat="server">
         <div id="container">
             <div id="inner-container">
+                <asp:Label ID="Label1" runat="server" Text="Enter the 6-digit One-time Password (OTP) sent to your email"></asp:Label>
                 <div id="row">
                     <div>
                         <asp:Label ID="otp" runat="server" Text="Enter your OTP"></asp:Label>
@@ -27,7 +28,7 @@
                 <br />
  
                 <div id="verify">
-                    <asp:Button ID="verifyBtn" runat="server" Text="Send" OnClick="verifynBtn_Click"/>
+                    <asp:Button ID="loginBtn" runat="server" Text="Send" OnClick="verifyBtn_Click"/>
                 </div>
             </div>
 
