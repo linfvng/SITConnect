@@ -41,6 +41,10 @@ namespace SITConnect_201128S
             {
                 logInfo = emailid + " has change password successfully.";
             }
+            else if (status == "otp success")
+            {
+                logInfo = emailid + " has been verified.";
+            }
             try
             {
                 using (SqlConnection con = new SqlConnection(MYDBConnectionString))

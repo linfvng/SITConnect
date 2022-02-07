@@ -121,7 +121,7 @@ namespace SITConnect_201128S
             {
                 using (SqlConnection con = new SqlConnection(MYDBConnectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@Fname, @Lname, @CreditCard, @Email, @PasswordHash, @PasswordSalt, @DoB, @Photo, @IV, @Key, @Count, @Lockdatetime, @PasswordHistory1, @PasswordHistory2)"))
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@Fname, @Lname, @CreditCard, @Email, @Verification, @PasswordHash, @PasswordSalt, @DoB, @Photo, @IV, @Key, @Count, @Lockdatetime, @PasswordHistory1, @PasswordHistory2)"))
                     {
                         using (SqlDataAdapter sda = new SqlDataAdapter())
                         {
@@ -130,6 +130,7 @@ namespace SITConnect_201128S
                             cmd.Parameters.AddWithValue("@Lname", lnameTB.Text.Trim());
                             cmd.Parameters.AddWithValue("@CreditCard", Convert.ToBase64String(encryptData(ccardTB.Text.Trim())));
                             cmd.Parameters.AddWithValue("@Email", emailTB.Text.Trim());
+                            cmd.Parameters.AddWithValue("@Verification", DBNull.Value);
                             cmd.Parameters.AddWithValue("@PasswordHash", finalHash);
                             cmd.Parameters.AddWithValue("@PasswordSalt", salt);
                             cmd.Parameters.AddWithValue("@DoB", dobTB.Text.Trim());

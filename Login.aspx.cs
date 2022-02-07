@@ -11,12 +11,15 @@ using System.Web;
 using System.Web.Script.Serialization;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Net.Mail;
+
 
 namespace SITConnect_201128S
 {
     public partial class Login : System.Web.UI.Page
     {
         string MYDBConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["SITConnect"].ConnectionString;
+        static string generateNum;
         Log log = new Log();
         Password pwdchk = new Password();
 
@@ -60,10 +63,18 @@ namespace SITConnect_201128S
                                 //Reset the account attempt
                                 updateAttempt(emailid, "3");
 
+                                //Generate OTP
+                                Random random = new Random();
+                                generateNum = random.Next(000000, 999999).ToString();
+                                createOTP(emailid, generateNum);
+
+                                //Send OTP mail
+                                sendM(generateNum);
+
                                 //Log for successful login
                                 log.logged(emailid, "login success");
 
-                                Response.Redirect("Homepage.aspx", false);
+                                Response.Redirect("VerificationEmail.aspx", false);
                             }
 
 
@@ -349,5 +360,61 @@ namespace SITConnect_201128S
                 throw ex;
             }
         }
+
+        protected string createOTP(string emailid, string generateNum)
+        {
+            string otp = null;
+            SqlConnection connection = new SqlConnection(MYDBConnectionString);
+            string sql = "UPDATE Account SET Verification=@verification WHERE Email=@EMAILID";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@verification", generateNum);
+            command.Parameters.AddWithValue("@EMAILID", emailid);
+            try
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["Verification"] != null)
+                        {
+                            otp = reader["Verification"].ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { connection.Close(); }
+            return otp;
+        }
+
+        protected string sendM(string code)
+        {
+            string s = null;
+            SmtpClient smtp = new SmtpClient();
+            smtp.Host = "smtp.gmail.com";
+            smtp.Port = 587;
+            smtp.Credentials = new NetworkCredential("emailgenerator821102@gmail.com", "Nyp@821102");
+            smtp.EnableSsl = true;
+            MailMessage msg = new MailMessage();
+            msg.Subject = "Your 6 digit OTP Code";
+            msg.Body = "Dear Sir/Madam:\n\n\tYour Email OTP is " + code + ".\n\nBest Regards,\nSITConnect Staff";
+            msg.To.Add(emailTB.Text.ToString());
+            string fromaddress = "SITConnect <emailgenerator821102@gmail.com>";
+            msg.From = new MailAddress(fromaddress);
+            try
+            {
+                smtp.Send(msg);
+                return s;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
     }
 }

@@ -14,7 +14,7 @@
         <a class="navbar-brand" style="float:left" href=""><strong><span>SIT</span>Connect</strong></a>
         <li><a href="/Registration.aspx">Register</a></li>
         <li><a href="/Login.aspx">Login</a></li>
-        <li><a href="/Index.aspx">Home</a></li>
+        <li><a href="#">Home</a></li>
     </ul>
     <form id="form1" runat="server">
         <div id="container">
