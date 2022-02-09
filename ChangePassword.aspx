@@ -11,7 +11,7 @@
         function validate() {
             var str = document.getElementById('<%=nPasswordTB.ClientID %>').value;
 
-            if (str.length < 8) {
+            if (str.length < 12) {
                 document.getElementById("pwdchecker").style.visibility = "visible";
                 document.getElementById("pwdchecker").innerHTML = "Password Length Must be at least 8 Character";
                 document.getElementById("pwdchecker").style.color = "Red";
@@ -53,12 +53,6 @@
     </script>
 </head>
 <body>
-    <ul>
-        <a class="navbar-brand" style="float:left" href=""><strong><span>SIT</span>Connect</strong></a>
-        <li><a href="/ChangePassword.aspx">Change Password</a></li>
-        <li><a href="/Homepage.aspx">Home</a></li>
-    </ul>
-
     <form id="form1" runat="server">
         <div id="container">
             <div id="inner-container">

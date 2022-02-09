@@ -121,7 +121,7 @@ namespace SITConnect_201128S
             {
                 using (SqlConnection con = new SqlConnection(MYDBConnectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@Fname, @Lname, @CreditCard, @Email, @Verification, @PasswordHash, @PasswordSalt, @DoB, @Photo, @IV, @Key, @Count, @Lockdatetime, @PasswordHistory1, @PasswordHistory2, @MinPasswordAge,  @MaxPasswordAge)"))
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@Fname, @Lname, @CreditCard, @Email, @Verification, @PasswordHash, @PasswordSalt, @DoB, @Photo, @IV, @Key, @Attempt, @Lockdatetime, @PasswordHistory1, @PasswordHistory2, @MinPasswordAge,  @MaxPasswordAge)"))
                     {
                         using (SqlDataAdapter sda = new SqlDataAdapter())
                         {
@@ -137,7 +137,7 @@ namespace SITConnect_201128S
                             cmd.Parameters.AddWithValue("@Photo", Photo);
                             cmd.Parameters.AddWithValue("@IV", Convert.ToBase64String(IV));
                             cmd.Parameters.AddWithValue("@Key", Convert.ToBase64String(Key));
-                            cmd.Parameters.AddWithValue("@Count", 3);
+                            cmd.Parameters.AddWithValue("@Attempt", 3);
                             cmd.Parameters.AddWithValue("@Lockdatetime", DBNull.Value);
                             cmd.Parameters.AddWithValue("@PasswordHistory1", finalHash);
                             cmd.Parameters.AddWithValue("@PasswordHistory2", DBNull.Value);
@@ -149,7 +149,7 @@ namespace SITConnect_201128S
                             con.Close();
 
                             //Log for successful registration
-                            log.logged(emailTB.Text, "register success");
+                            log.logged(emailTB.Text, " has register successfully.");
                         }
                     }
                 }

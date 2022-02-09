@@ -32,7 +32,7 @@ namespace SITConnect_201128S
             if (otpTB.Text == emailOTP(Session["LoggedIn"].ToString()))
             {
                 //Log for correct otp
-                log.logged(Session["LoggedIn"].ToString(), "otp success");
+                log.logged(Session["LoggedIn"].ToString(), " has been verified.");
 
                 Response.Redirect("Homepage.aspx", false);
             }

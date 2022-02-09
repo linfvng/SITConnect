@@ -22,6 +22,8 @@ namespace SITConnect_201128S
         static string generateNum;
         Log log = new Log();
         Password pwdchk = new Password();
+        static string mailEmail = "emailgenerator821102@gmail.com";
+        static string mailPwd = "Nyp@821102";
 
 
         protected void Page_Load(object sender, EventArgs e)
@@ -70,8 +72,8 @@ namespace SITConnect_201128S
                                     //now create a new cookie with this guid value
                                     Response.Cookies.Add(new HttpCookie("AuthToken", guid));
 
-                                    //Log for successful login
-                                    log.logged(emailid, "password expiry");
+                                    //Log for password expiry
+                                    log.logged(emailid, " password has been expired.");
 
                                     Response.Redirect("ChangePassword.aspx", false);
                                 }
@@ -98,7 +100,7 @@ namespace SITConnect_201128S
                                     sendMail(generateNum);
 
                                     //Log for successful login
-                                    log.logged(emailid, "login success");
+                                    log.logged(emailid, " has successfully login.");
 
                                     Response.Redirect("VerificationEmail.aspx", false);
                                 }
@@ -110,7 +112,7 @@ namespace SITConnect_201128S
                                 updateAttempt(emailid, subtractAttempt);
 
                                 //Log for failed login
-                                log.logged(emailid, "fail");
+                                log.logged(emailid, " has login failed.");
                             }
                         }
                         else
@@ -118,7 +120,7 @@ namespace SITConnect_201128S
                             error.Text = "Email or Password is not valid. Please try again.";
 
                             //Log for failed login
-                            log.logged(emailid, "fail");
+                            log.logged(emailid, " has login failed.");
                         }
                     }
                 }
@@ -131,7 +133,7 @@ namespace SITConnect_201128S
                         locked(emailid, locktimedate);
 
                         //Log for account lockout
-                        log.logged(emailid, "locked");
+                        log.logged(emailid, " account has been locked.");
                     }
                     else
                     {
@@ -148,7 +150,7 @@ namespace SITConnect_201128S
                             error.Text = "Your account has been recovered. Please relogin.";
 
                             //Log for account recovery
-                            log.logged(emailid, "recover");
+                            log.logged(emailid, " account has been recovered.");
                         }
                     }
                 }
@@ -422,7 +424,7 @@ namespace SITConnect_201128S
             SmtpClient smtp = new SmtpClient();
             smtp.Host = "smtp.gmail.com";
             smtp.Port = 587;
-            smtp.Credentials = new NetworkCredential("emailgenerator821102@gmail.com", "Nyp@821102");
+            smtp.Credentials = new NetworkCredential(mailEmail, mailPwd);
             smtp.EnableSsl = true;
             MailMessage msg = new MailMessage();
             msg.Subject = "Account Verification";

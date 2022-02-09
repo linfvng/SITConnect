@@ -16,7 +16,7 @@ namespace SITConnect_201128S
 
             // Score 1 very weak
             // if length of password is less than 8 chars
-            if (password.Length < 8)
+            if (password.Length < 12)
             {
                 return 1;
             }

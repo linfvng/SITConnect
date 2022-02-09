@@ -13,42 +13,7 @@ namespace SITConnect_201128S
         static string logInfo;
         public void logged(string emailid, string status)
         {
-            if (status == "login success")
-            {
-                logInfo = emailid + " has successfully login.";
-            }
-            else if (status == "locked")
-            {
-                logInfo = emailid + " account has been locked.";
-            }
-            else if (status == "recover")
-            {
-                logInfo = emailid + " account has been recovered.";
-            }
-            else if (status == "fail")
-            {
-                logInfo = emailid + " has login failed.";
-            }
-            else if (status == "logout")
-            {
-                logInfo = emailid + " has logout successfully.";
-            }
-            else if (status == "register success")
-            {
-                logInfo = emailid + " has register successfully.";
-            }
-            else if (status == "change password")
-            {
-                logInfo = emailid + " has change password successfully.";
-            }
-            else if (status == "otp success")
-            {
-                logInfo = emailid + " has been verified.";
-            }
-            else if (status == "password expiry")
-            {
-                logInfo = emailid + " password has been expired.";
-            }
+            logInfo = emailid + status;
             try
             {
                 using (SqlConnection con = new SqlConnection(MYDBConnectionString))

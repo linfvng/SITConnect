@@ -36,7 +36,7 @@ namespace SITConnect_201128S
         protected void Logout(object sender, EventArgs e)
         {
             //Log for account logout
-            log.logged(Session["LoggedIn"].ToString(), "logout");
+            log.logged(Session["LoggedIn"].ToString(), " has logout successfully.");
 
             Session.Clear();
             Session.Abandon();

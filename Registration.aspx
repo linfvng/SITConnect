@@ -11,9 +11,9 @@
         function validate() {
             var str = document.getElementById('<%=passwordTB.ClientID %>').value;
 
-            if (str.length < 8) {
+            if (str.length < 12) {
                 document.getElementById("pwdchecker").style.visibility = "visible";
-                document.getElementById("pwdchecker").innerHTML = "Password Length Must be at least 8 Character";
+                document.getElementById("pwdchecker").innerHTML = "Password Length Must be at least 12 Character";
                 document.getElementById("pwdchecker").style.color = "Red";
                 return ("too_short");
             }

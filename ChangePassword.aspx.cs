@@ -129,7 +129,7 @@ namespace SITConnect_201128S
                                         setPwdAge(emailid, minPwd);
 
                                         //Log for change password
-                                        log.logged(Session["LoggedIn"].ToString(), "change password");
+                                        log.logged(Session["LoggedIn"].ToString(), " has change password successfully.");
                                         Response.Redirect("Homepage.aspx", false);
                                     }
                                     else
