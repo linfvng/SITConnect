@@ -35,8 +35,20 @@ namespace SITConnect_201128S
             string fileName = Path.GetFileName(postedFile.FileName);
             string fileExtension = Path.GetExtension(fileName);
 
+            bool validEmail;
             bool validFile;
             bool validPwd;
+
+            if(checkEmail(emailTB.Text.Trim()) != null)
+            {
+                emailError.Text = "Email have been used";
+                emailError.ForeColor = Color.Red;
+                validEmail = false;
+            }
+            else
+            {
+                validEmail = true;
+            }
 
             // File Upload Validation
             if(fileExtension.ToLower() == ".jpg" || fileExtension.ToLower() == ".bmp" || fileExtension.ToLower() == ".gif" || fileExtension.ToLower() == ".png")
@@ -107,7 +119,7 @@ namespace SITConnect_201128S
                 validPwd = true;
             }
 
-            if (validPwd && validFile)
+            if (validPwd && validFile && validEmail)
             {
                 createAccount();
 
@@ -182,6 +194,35 @@ namespace SITConnect_201128S
 
             finally { }
             return cipherText;
+        }
+
+        protected string checkEmail(string emailid)
+        {
+            string ce = null;
+            SqlConnection connection = new SqlConnection(MYDBConnectionString);
+            string sql = "select CreditCard FROM Account WHERE Email=@EMAILID";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@EMAILID", emailid);
+            try
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["CreditCard"] != null)
+                        {
+                            ce = reader["CreditCard"].ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { connection.Close(); }
+            return ce;
         }
     }
 }

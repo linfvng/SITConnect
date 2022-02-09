@@ -93,6 +93,7 @@
                     <br />
                     <asp:TextBox ID="emailTB" runat="server"></asp:TextBox>
                     <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" ErrorMessage="*Invalid Email" ControlToValidate="emailTB" ForeColor="Red" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
+                    <asp:Label ID="emailError" runat="server" Text=""></asp:Label>
                     <br />
                     <asp:RequiredFieldValidator ID="RequiredFieldValidator6" runat="server" ControlToValidate="emailTB" ErrorMessage="*Email is empty" ForeColor="Red"></asp:RequiredFieldValidator>
                 </div>
