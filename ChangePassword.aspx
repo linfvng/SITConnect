@@ -13,7 +13,7 @@
 
             if (str.length < 12) {
                 document.getElementById("pwdchecker").style.visibility = "visible";
-                document.getElementById("pwdchecker").innerHTML = "Password Length Must be at least 8 Character";
+                document.getElementById("pwdchecker").innerHTML = "Password Length Must be at least 12 Character";
                 document.getElementById("pwdchecker").style.color = "Red";
                 return ("too_short");
             }
@@ -53,6 +53,9 @@
     </script>
 </head>
 <body>
+    <ul>
+        <a class="navbar-brand" style="float:left" href=""><strong><span>SIT</span>Connect</strong></a>
+    </ul>
     <form id="form1" runat="server">
         <div id="container">
             <div id="inner-container">

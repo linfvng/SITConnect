@@ -16,8 +16,6 @@ namespace SITConnect_201128S
     public partial class ChangePassword : System.Web.UI.Page
     {
         string MYDBConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["SITConnect"].ConnectionString;
-        static string finalHash;
-        static string salt;
         Log log = new Log();
         Password pwdchk = new Password();
 

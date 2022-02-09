@@ -78,8 +78,6 @@
     <Content Include="CustomError\Error403.html" />
     <Content Include="CustomError\Error404.html" />
     <Content Include="Homepage.aspx" />
-    <Content Include="img\error403.png" />
-    <Content Include="img\error404.png" />
     <Content Include="Login.aspx" />
     <Content Include="Registration.aspx" />
     <Content Include="VerificationEmail.aspx" />
