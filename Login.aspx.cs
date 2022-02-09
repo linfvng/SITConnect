@@ -186,7 +186,7 @@ namespace SITConnect_201128S
             {
                 throw new Exception(ex.ToString());
             }
-            finally { connection.Close(); }A
+            finally { connection.Close(); }
             return c;
         }
 
