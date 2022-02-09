@@ -126,7 +126,7 @@ namespace SITConnect_201128S
                 {
                     error.Text = "Your account has been locked for 1 minutes for 3 invalid attempts.";
                     string locktimedate = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
-                    if (lockStatus(emailid) == null)
+                    if (lockedTime(emailid) == null)
                     {
                         locked(emailid, locktimedate);
 
@@ -186,7 +186,7 @@ namespace SITConnect_201128S
             {
                 throw new Exception(ex.ToString());
             }
-            finally { connection.Close(); }
+            finally { connection.Close(); }A
             return c;
         }
 
@@ -218,38 +218,6 @@ namespace SITConnect_201128S
             }
             finally { connection.Close(); }
             return a;
-        }
-
-        protected string lockStatus(string emailid)
-        {
-            string ls = null;
-            SqlConnection connection = new SqlConnection(MYDBConnectionString);
-            string sql = "select Lockdatetime FROM Account WHERE Email=@EMAILID";
-            SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@EMAILID", emailid);
-            try
-            {
-                connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        if (reader["Lockdatetime"] != null)
-                        {
-                            if (reader["Lockdatetime"] != DBNull.Value)
-                            {
-                                ls = reader["Lockdatetime"].ToString();
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-            finally { connection.Close(); }
-            return ls;
         }
 
         protected string locked(string emailid, string locktiming)

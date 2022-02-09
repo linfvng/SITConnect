@@ -42,8 +42,6 @@ namespace SITConnect_201128S
             Session.Abandon();
             Session.RemoveAll();
 
-            Response.Redirect("Login.aspx", false);
-
             if (Request.Cookies["ASP.NET_SessionId"] != null)
             {
                 Request.Cookies["ASP.NET_SessionId"].Value = string.Empty;
@@ -55,6 +53,8 @@ namespace SITConnect_201128S
                 Request.Cookies["AuthToken"].Value = string.Empty;
                 Request.Cookies["AuthToken"].Expires = DateTime.Now.AddMonths(-20);
             }
+
+            Response.Redirect("Login.aspx", false);
         }
 
         protected string name(string emailid)
