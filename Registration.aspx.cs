@@ -121,7 +121,7 @@ namespace SITConnect_201128S
             {
                 using (SqlConnection con = new SqlConnection(MYDBConnectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@Fname, @Lname, @CreditCard, @Email, @Verification, @PasswordHash, @PasswordSalt, @DoB, @Photo, @IV, @Key, @Attempt, @Lockdatetime, @PasswordHistory1, @PasswordHistory2, @MinPasswordAge,  @MaxPasswordAge)"))
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@Fname, @Lname, @CreditCard, @Email, @Verification, @PasswordHash, @PasswordSalt, @DoB, @Photo, @IV, @Key, @Attempt, @Lockdatetime, @PasswordHistory1, @PasswordHistory2, @MinPasswordAge,  @MaxPasswordAge, @MailEmail, @MailPwd)"))
                     {
                         using (SqlDataAdapter sda = new SqlDataAdapter())
                         {
@@ -143,6 +143,8 @@ namespace SITConnect_201128S
                             cmd.Parameters.AddWithValue("@PasswordHistory2", DBNull.Value);
                             cmd.Parameters.AddWithValue("@MinPasswordAge", DBNull.Value);
                             cmd.Parameters.AddWithValue("@MaxPasswordAge", DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"));
+                            cmd.Parameters.AddWithValue("@MailEmail", "emailgenerator821102@gmail.com");
+                            cmd.Parameters.AddWithValue("@MailPwd", "Nyp@821102");
                             cmd.Connection = con;
                             con.Open();
                             cmd.ExecuteNonQuery();

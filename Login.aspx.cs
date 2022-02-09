@@ -22,8 +22,6 @@ namespace SITConnect_201128S
         static string generateNum;
         Log log = new Log();
         Password pwdchk = new Password();
-        static string mailEmail = "emailgenerator821102@gmail.com";
-        static string mailPwd = "Nyp@821102";
 
 
         protected void Page_Load(object sender, EventArgs e)
@@ -418,13 +416,77 @@ namespace SITConnect_201128S
             return otp;
         }
 
+        protected string mailEmail(string emailid)
+        {
+            string ls = null;
+            SqlConnection connection = new SqlConnection(MYDBConnectionString);
+            string sql = "select MailEmail FROM Account WHERE Email=@EMAILID";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@EMAILID", emailid);
+            try
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["MailEmail"] != null)
+                        {
+                            if (reader["MailEmail"] != DBNull.Value)
+                            {
+                                ls = reader["MailEmail"].ToString();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { connection.Close(); }
+            return ls;
+        }
+
+        protected string mailPwd(string emailid)
+        {
+            string ls = null;
+            SqlConnection connection = new SqlConnection(MYDBConnectionString);
+            string sql = "select MailPwd FROM Account WHERE Email=@EMAILID";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@EMAILID", emailid);
+            try
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["MailPwd"] != null)
+                        {
+                            if (reader["MailPwd"] != DBNull.Value)
+                            {
+                                ls = reader["MailPwd"].ToString();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { connection.Close(); }
+            return ls;
+        }
+
         protected string sendMail(string code)
         {
             string s = null;
             SmtpClient smtp = new SmtpClient();
             smtp.Host = "smtp.gmail.com";
             smtp.Port = 587;
-            smtp.Credentials = new NetworkCredential(mailEmail, mailPwd);
+            smtp.Credentials = new NetworkCredential(mailEmail(emailTB.Text.ToString()), mailPwd(emailTB.Text.ToString()));
             smtp.EnableSsl = true;
             MailMessage msg = new MailMessage();
             msg.Subject = "Account Verification";
